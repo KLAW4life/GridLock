@@ -17,3 +17,25 @@
 out body;
 >;
 out skel qt;
+
+#### Georgia #####
+
+[out:json][timeout:180];
+
+(
+  // Dominion substations in Georgia
+  nwr
+    ["power"="substation"]
+    ["operator"~"Georgia Power|Georgia Power Company",i]
+    (30.35,-85.61,35.00,-80.84);
+
+  // Dominion transmission lines in South Carolina
+  way
+    ["power"="line"]
+    ["operator"~"Georgia Power|Georgia Power Company",i]
+    (30.35,-85.61,35.00,-80.84);
+);
+
+out body;
+>;
+out skel qt;
