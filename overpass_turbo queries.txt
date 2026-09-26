@@ -1,0 +1,19 @@
+[out:json][timeout:180];
+
+(
+  // Dominion substations in South Carolina
+  nwr
+    ["power"="substation"]
+    ["operator"~"Dominion Energy South Carolina|Dominion Energy|South Carolina Electric",i]
+    (32.0,-83.5,35.3,-78.5);
+
+  // Dominion transmission lines in South Carolina
+  way
+    ["power"="line"]
+    ["operator"~"Dominion Energy South Carolina|Dominion Energy|South Carolina Electric",i]
+    (32.0,-83.5,35.3,-78.5);
+);
+
+out body;
+>;
+out skel qt;
