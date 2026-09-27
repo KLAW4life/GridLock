@@ -1,0 +1,381 @@
+{
+  "metadata": {
+    "source": "Gridlock Utilities Resource and Collaboration Analysis",
+    "modelType": "Synthetic prototype financial/resource model",
+    "disclaimer": "Resource requirements and financial estimates are modeled prototype values and are not actual internal utility cost data.",
+    "opportunityCount": 7
+  },
+  "opportunities": [
+    {
+      "overlapId": "OVL_1",
+      "georgiaProjectId": "20509",
+      "georgiaProjectName": "CC - EMBLEM RIVERSIDE CUSTOMER SUB (FLEXENTIAL)",
+      "georgiaInServiceDate": "03/01/2027",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 17.64,
+      "timeGapDays": 638,
+      "opportunityType": "Resource planning",
+      "projectCosts": {
+        "georgiaProjectCost": 7578000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 19335000
+      },
+      "equipmentCosts": {
+        "georgia": 529000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 464000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 2258000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 1823000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 6,
+        "diggerDerricks": 1,
+        "cranes": 0,
+        "excavators": 1
+      },
+      "modelFactors": {
+        "distanceFactor": 0.8,
+        "timeFactor": 0.5
+      },
+      "savings": {
+        "equipment": 42320,
+        "logistics": 36680,
+        "contracting": 107760,
+        "bulkMaterials": 36460,
+        "totalPotentialSavings": 223220,
+        "estimatedCollaborativeCost": 19111780,
+        "savingsPercent": 1.1544866821825703
+      },
+      "recommendation": "Plan shared vendors/equipment where schedules can be adjusted"
+    },
+    {
+      "overlapId": "OVL_2",
+      "georgiaProjectId": "20067",
+      "georgiaProjectName": "SAV: DEPTFORD - MAGNOLIA 115KV RECONDUCTOR",
+      "georgiaInServiceDate": "06/01/2025",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 18.15,
+      "timeGapDays": 0,
+      "opportunityType": "Concurrent collaboration",
+      "projectCosts": {
+        "georgiaProjectCost": 10094000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 21851000
+      },
+      "equipmentCosts": {
+        "georgia": 1673000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 273000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 2326000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 1917000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 7,
+        "diggerDerricks": 3,
+        "cranes": 1,
+        "excavators": 2
+      },
+      "modelFactors": {
+        "distanceFactor": 0.8,
+        "timeFactor": 1
+      },
+      "savings": {
+        "equipment": 267680,
+        "logistics": 73360,
+        "contracting": 215520,
+        "bulkMaterials": 76680,
+        "totalPotentialSavings": 633240,
+        "estimatedCollaborativeCost": 21217760,
+        "savingsPercent": 2.897990938629811
+      },
+      "recommendation": "Highest priority: coordinate schedule, staging, equipment and procurement"
+    },
+    {
+      "overlapId": "OVL_3",
+      "georgiaProjectId": "20066",
+      "georgiaProjectName": "SAV: BOULEVARD - DEPTFORD 115KV RECONDUCTOR",
+      "georgiaInServiceDate": "06/01/2026",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 18.94,
+      "timeGapDays": 365,
+      "opportunityType": "Near-term coordination",
+      "projectCosts": {
+        "georgiaProjectCost": 8053000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 19810000
+      },
+      "equipmentCosts": {
+        "georgia": 1077000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 536000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 1300000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 1548000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 3,
+        "diggerDerricks": 2,
+        "cranes": 1,
+        "excavators": 2
+      },
+      "modelFactors": {
+        "distanceFactor": 0.8,
+        "timeFactor": 0.75
+      },
+      "savings": {
+        "equipment": 129240,
+        "logistics": 55020,
+        "contracting": 93600,
+        "bulkMaterials": 46440,
+        "totalPotentialSavings": 324300,
+        "estimatedCollaborativeCost": 19485700,
+        "savingsPercent": 1.6370519939424535
+      },
+      "recommendation": "Strong candidate: align procurement, contractors and equipment mobilization"
+    },
+    {
+      "overlapId": "OVL_4",
+      "georgiaProjectId": "20407",
+      "georgiaProjectName": "SAV: MAGNOLIA - TRUMAN PARKWAY 115KV REBUILD",
+      "georgiaInServiceDate": "06/01/2028",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 20.03,
+      "timeGapDays": 1096,
+      "opportunityType": "Low timing alignment",
+      "projectCosts": {
+        "georgiaProjectCost": 8390000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 20147000
+      },
+      "equipmentCosts": {
+        "georgia": 765000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 471000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 2577000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 1866000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 6,
+        "diggerDerricks": 2,
+        "cranes": 0,
+        "excavators": 2
+      },
+      "modelFactors": {
+        "distanceFactor": 0.6,
+        "timeFactor": 0.1
+      },
+      "savings": {
+        "equipment": 9180,
+        "logistics": 5502,
+        "contracting": 16164,
+        "bulkMaterials": 5598,
+        "totalPotentialSavings": 36444,
+        "estimatedCollaborativeCost": 20110556,
+        "savingsPercent": 0.18089045515461358
+      },
+      "recommendation": "Primarily use visibility to prevent future duplication"
+    },
+    {
+      "overlapId": "OVL_5",
+      "georgiaProjectId": "20277",
+      "georgiaProjectName": "SAV: MCINTOSH - PURRYSBURG 230KV REACTORS",
+      "georgiaInServiceDate": "06/01/2026",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 20.45,
+      "timeGapDays": 365,
+      "opportunityType": "Near-term coordination",
+      "projectCosts": {
+        "georgiaProjectCost": 14771000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 26528000
+      },
+      "equipmentCosts": {
+        "georgia": 2270000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 582000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 1324000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 2503000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 5,
+        "diggerDerricks": 3,
+        "cranes": 1,
+        "excavators": 2
+      },
+      "modelFactors": {
+        "distanceFactor": 0.6,
+        "timeFactor": 0.75
+      },
+      "savings": {
+        "equipment": 175950,
+        "logistics": 41265,
+        "contracting": 71496,
+        "bulkMaterials": 56317.5,
+        "totalPotentialSavings": 345028.5,
+        "estimatedCollaborativeCost": 26182971.5,
+        "savingsPercent": 1.300620099517491
+      },
+      "recommendation": "Strong candidate: align procurement, contractors and equipment mobilization"
+    },
+    {
+      "overlapId": "OVL_6",
+      "georgiaProjectId": "21006",
+      "georgiaProjectName": "SAV: BOULEVARD - MAGNOLIA 115 KV LINE REBUILD",
+      "georgiaInServiceDate": "06/01/2029",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 20.78,
+      "timeGapDays": 1461,
+      "opportunityType": "Low timing alignment",
+      "projectCosts": {
+        "georgiaProjectCost": 9266000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 21023000
+      },
+      "equipmentCosts": {
+        "georgia": 1629000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 329000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 2400000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 1256000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 7,
+        "diggerDerricks": 1,
+        "cranes": 1,
+        "excavators": 2
+      },
+      "modelFactors": {
+        "distanceFactor": 0.6,
+        "timeFactor": 0.1
+      },
+      "savings": {
+        "equipment": 19548,
+        "logistics": 5502,
+        "contracting": 16164,
+        "bulkMaterials": 3768,
+        "totalPotentialSavings": 44982,
+        "estimatedCollaborativeCost": 20978018,
+        "savingsPercent": 0.2139656566617514
+      },
+      "recommendation": "Primarily use visibility to prevent future duplication"
+    },
+    {
+      "overlapId": "OVL_7",
+      "georgiaProjectId": "20783",
+      "georgiaProjectName": "SAV: COLEMAN - DEAN FOREST 115KV LINE REBUILD",
+      "georgiaInServiceDate": "06/01/2028",
+      "dominionProjectId": "6808 S",
+      "dominionProjectName": "Okatie-Bluffton 115kV: Rebuild",
+      "dominionInServiceDate": "06/01/2025",
+      "distanceMiles": 22.86,
+      "timeGapDays": 1096,
+      "opportunityType": "Low timing alignment",
+      "projectCosts": {
+        "georgiaProjectCost": 7614000,
+        "dominionProjectCost": 11757000,
+        "baselineSeparateCost": 19371000
+      },
+      "equipmentCosts": {
+        "georgia": 1158000,
+        "dominion": 1955000
+      },
+      "logisticsCosts": {
+        "georgia": 423000,
+        "dominion": 262000
+      },
+      "contractCosts": {
+        "georgia": 1427000,
+        "dominion": 2245000
+      },
+      "materialCosts": {
+        "georgia": 1462000,
+        "dominion": 2780000
+      },
+      "sharedResources": {
+        "bucketTrucks": 6,
+        "diggerDerricks": 3,
+        "cranes": 1,
+        "excavators": 1
+      },
+      "modelFactors": {
+        "distanceFactor": 0.6,
+        "timeFactor": 0.1
+      },
+      "savings": {
+        "equipment": 13896,
+        "logistics": 5502,
+        "contracting": 10274.400000000001,
+        "bulkMaterials": 4386,
+        "totalPotentialSavings": 34058.4,
+        "estimatedCollaborativeCost": 19336941.6,
+        "savingsPercent": 0.17582158897320738
+      },
+      "recommendation": "Primarily use visibility to prevent future duplication"
+    }
+  ]
+}

@@ -1,61 +1,182 @@
 import { useMemo, useState } from "react";
 
+import OpportunityDrawer from "./OpportunityDrawer.jsx";
+
 
 export default function AnalysisPage({
   data,
   onViewOpportunity,
+  emergencyEvent,
+  affectedOpportunities = [],
 }) {
+
+  const [view, setView] =
+    useState("opportunities");
 
   const [sortBy, setSortBy] =
     useState("distance");
 
+  const [
+    selectedOpportunity,
+    setSelectedOpportunity,
+  ] = useState(null);
 
-  /*
-   * Keep the original index because that index
-   * identifies the same opportunity on the map.
-   */
+
+  /* =========================================================
+     CHANGE VIEW
+  ========================================================= */
+
+  const handleViewChange = (newView) => {
+
+    setView(newView);
+
+    if (newView === "opportunities") {
+      setSortBy("distance");
+    } else {
+      setSortBy("name");
+    }
+
+  };
+
+
+  /* =========================================================
+     CHECK IF OPPORTUNITY IS AFFECTED
+  ========================================================= */
+
+  const isAffectedOpportunity = (opportunity) => {
+
+    if (!emergencyEvent?.active) {
+      return false;
+    }
+
+    return affectedOpportunities.some(
+      (affected) =>
+        String(affected.georgiaId).trim() ===
+          String(opportunity.georgiaId).trim() &&
+        String(affected.dominionId).trim() ===
+          String(opportunity.dominionId).trim()
+    );
+
+  };
+
+
+  /* =========================================================
+     OPPORTUNITY DATA
+  ========================================================= */
+
   const opportunities = useMemo(() => {
 
-    const rows = data.overlaps.map(
-      (item, index) => ({
-        ...item,
-        originalIndex: index,
-      })
-    );
+    const rows =
+      data.overlaps.map(
+        (item, index) => ({
+          ...item,
+          originalIndex: index,
+        })
+      );
 
 
     if (sortBy === "timeline") {
 
-      return [...rows].sort((a, b) => {
+      return [...rows].sort(
+        (a, b) => {
 
-        const aGap =
-          a.timeGapDays ?? Infinity;
+          const aGap =
+            a.timeGapDays ?? Infinity;
 
-        const bGap =
-          b.timeGapDays ?? Infinity;
+          const bGap =
+            b.timeGapDays ?? Infinity;
 
-        return aGap - bGap;
+          return aGap - bGap;
 
-      });
+        }
+      );
 
     }
 
 
     return [...rows].sort(
-      (a, b) => a.distance - b.distance
+      (a, b) =>
+        a.distance - b.distance
     );
 
   }, [data.overlaps, sortBy]);
 
 
-  /*
-   * Simple descriptive metrics derived directly
-   * from the overlap data.
-   */
+  /* =========================================================
+     GEORGIA PROJECTS
+  ========================================================= */
+
+  const georgiaProjects = useMemo(() => {
+
+    const projects =
+      [...data.georgia];
+
+
+    if (sortBy === "date") {
+
+      return projects.sort(
+        (a, b) =>
+          compareDates(
+            a.date,
+            b.date
+          )
+      );
+
+    }
+
+
+    return projects.sort(
+      (a, b) =>
+        (a.name || "")
+          .localeCompare(
+            b.name || ""
+          )
+    );
+
+  }, [data.georgia, sortBy]);
+
+
+  /* =========================================================
+     DOMINION PROJECTS
+  ========================================================= */
+
+  const dominionProjects = useMemo(() => {
+
+    const projects =
+      [...data.dominion];
+
+
+    if (sortBy === "date") {
+
+      return projects.sort(
+        (a, b) =>
+          compareDates(
+            a.date,
+            b.date
+          )
+      );
+
+    }
+
+
+    return projects.sort(
+      (a, b) =>
+        (a.name || "")
+          .localeCompare(
+            b.name || ""
+          )
+    );
+
+  }, [data.dominion, sortBy]);
+
+
+  /* =========================================================
+     SUMMARY STATISTICS
+  ========================================================= */
 
   const closest =
-    opportunities.length > 0
-      ? [...opportunities].sort(
+    data.overlaps.length > 0
+      ? [...data.overlaps].sort(
           (a, b) =>
             a.distance - b.distance
         )[0]
@@ -86,18 +207,24 @@ export default function AnalysisPage({
             (total, item) =>
               total + item.distance,
             0
-          ) / data.overlaps.length
+          ) /
+          data.overlaps.length
         ).toFixed(1)
       : "—";
 
+
+  /* =========================================================
+     PAGE
+  ========================================================= */
 
   return (
 
     <div className="analysis-page">
 
-      {/* ==========================================
-          PAGE HEADER
-      =========================================== */}
+
+      {/* =====================================================
+          HERO
+      ====================================================== */}
 
       <section className="analysis-hero">
 
@@ -112,10 +239,11 @@ export default function AnalysisPage({
           </h1>
 
           <p>
-            Examine the geographic and timeline
-            relationships behind the coordination
-            opportunities detected between Georgia
-            Power and Dominion Energy South Carolina.
+            Explore planned transmission projects
+            from both utilities and examine the
+            geographic and timeline relationships
+            behind detected coordination
+            opportunities.
           </p>
 
         </div>
@@ -123,9 +251,58 @@ export default function AnalysisPage({
       </section>
 
 
-      {/* ==========================================
+      {/* =====================================================
+          ACTIVE EVENT NOTICE
+      ====================================================== */}
+
+      {emergencyEvent?.active && (
+
+        <div className="analysis-emergency-notice">
+
+          <div className="analysis-emergency-notice-left">
+
+            <span className="analysis-emergency-symbol">
+              ⚠
+            </span>
+
+            <div>
+
+              <strong>
+                LIVE GRID EVENT
+              </strong>
+
+              <span>
+                {emergencyEvent.label}
+              </span>
+
+            </div>
+
+          </div>
+
+
+          <div className="analysis-emergency-notice-right">
+
+            <strong>
+              {affectedOpportunities.length}
+            </strong>
+
+            <span>
+              affected coordination opportunity
+              {affectedOpportunities.length === 1
+                ? ""
+                : "s"}
+            </span>
+
+          </div>
+
+        </div>
+
+      )}
+
+
+      {/* =====================================================
           SUMMARY CARDS
-      =========================================== */}
+      ====================================================== */}
 
       <section className="analysis-summary">
 
@@ -177,328 +354,779 @@ export default function AnalysisPage({
       </section>
 
 
-      {/* ==========================================
-          MAIN ANALYSIS
-      =========================================== */}
+      {/* =====================================================
+          TABLE
+      ====================================================== */}
 
-      <section className="analysis-content">
+      <section className="analysis-content analysis-content-full">
 
         <div className="analysis-table-card">
+
+
+          {/* =================================================
+              HEADER
+          ================================================== */}
 
           <div className="analysis-table-header">
 
             <div>
 
               <p className="eyebrow">
-                OPPORTUNITY MATRIX
+                PROJECT EXPLORER
               </p>
 
               <h2>
-                Detected Coordination Opportunities
+
+                {view === "opportunities" &&
+                  "Detected Coordination Opportunities"}
+
+                {view === "georgia" &&
+                  "Georgia Power Projects"}
+
+                {view === "dominion" &&
+                  "Dominion Energy South Carolina Projects"}
+
               </h2>
 
+
               <p>
-                Geographic proximity is the primary
-                signal. Timeline difference provides
-                additional scheduling context.
+
+                {view === "opportunities" &&
+                  "Project pairs detected within the 25-mile geographic threshold."}
+
+                {view === "georgia" &&
+                  `${data.georgia.length} planned Georgia Power projects in the dataset.`}
+
+                {view === "dominion" &&
+                  `${data.dominion.length} planned Dominion Energy South Carolina projects in the dataset.`}
+
               </p>
 
             </div>
 
 
-            <div className="sort-control">
+            {/* =============================================
+                CONTROLS
+            ============================================== */}
 
-              <label htmlFor="sort">
-                Sort by
-              </label>
-
-              <select
-                id="sort"
-                value={sortBy}
-                onChange={(event) =>
-                  setSortBy(
-                    event.target.value
-                  )
-                }
-              >
-
-                <option value="distance">
-                  Geographic distance
-                </option>
-
-                <option value="timeline">
-                  Timeline gap
-                </option>
-
-              </select>
-
-            </div>
-
-          </div>
+            <div className="analysis-controls">
 
 
-          {/* ======================================
-              TABLE
-          ======================================= */}
+              {/* VIEW */}
 
-          <div className="analysis-table-wrapper">
+              <div className="sort-control">
 
-            <table className="analysis-table">
+                <label htmlFor="view">
+                  View
+                </label>
 
-              <thead>
+                <select
+                  id="view"
+                  value={view}
+                  onChange={(event) =>
+                    handleViewChange(
+                      event.target.value
+                    )
+                  }
+                >
 
-                <tr>
+                  <option value="opportunities">
+                    Coordination Opportunities
+                  </option>
 
-                  <th>
-                    Opportunity
-                  </th>
-
-                  <th>
+                  <option value="georgia">
                     Georgia Power
-                  </th>
+                  </option>
 
-                  <th>
+                  <option value="dominion">
                     Dominion Energy SC
-                  </th>
+                  </option>
 
-                  <th>
-                    Distance
-                  </th>
+                </select>
 
-                  <th>
-                    Timeline Gap
-                  </th>
-
-                  <th>
-                    Map
-                  </th>
-
-                </tr>
-
-              </thead>
+              </div>
 
 
-              <tbody>
+              {/* SORT */}
 
-                {opportunities.map(
-                  (item, index) => (
+              <div className="sort-control">
 
-                    <tr
-                      key={
-                        `${item.georgiaId}-${item.dominionId}-${index}`
-                      }
-                    >
+                <label htmlFor="sort">
+                  Sort by
+                </label>
 
-                      <td>
+                <select
+                  id="sort"
+                  value={sortBy}
+                  onChange={(event) =>
+                    setSortBy(
+                      event.target.value
+                    )
+                  }
+                >
 
-                        <span className="table-rank">
-                          #{index + 1}
-                        </span>
+                  {view === "opportunities" ? (
 
-                      </td>
+                    <>
 
+                      <option value="distance">
+                        Geographic Distance
+                      </option>
 
-                      <td>
+                      <option value="timeline">
+                        Timeline Gap
+                      </option>
 
-                        <div className="table-project">
+                    </>
 
-                          <span className="mini-dot ga-dot" />
+                  ) : (
 
-                          <div>
+                    <>
 
-                            <strong>
-                              {item.georgiaName}
-                            </strong>
+                      <option value="name">
+                        Project Name
+                      </option>
 
-                            <small>
-                              ID {item.georgiaId}
-                            </small>
+                      <option value="date">
+                        In-Service Date
+                      </option>
 
-                          </div>
+                    </>
 
-                        </div>
+                  )}
 
-                      </td>
+                </select>
 
-
-                      <td>
-
-                        <div className="table-project">
-
-                          <span className="mini-dot sc-dot" />
-
-                          <div>
-
-                            <strong>
-                              {item.dominionName}
-                            </strong>
-
-                            <small>
-                              ID {item.dominionId}
-                            </small>
-
-                          </div>
-
-                        </div>
-
-                      </td>
-
-
-                      <td>
-
-                        <span className="distance-pill">
-
-                          {item.distance} mi
-
-                        </span>
-
-                      </td>
-
-
-                      <td>
-
-                        {item.timeGapDays !== null
-                          ? formatDays(
-                              item.timeGapDays
-                            )
-                          : "Unknown"}
-
-                      </td>
-
-
-                      <td>
-
-                        <button
-                          className="view-map-button"
-                          onClick={() =>
-                            onViewOpportunity(
-                              item.originalIndex
-                            )
-                          }
-                        >
-                          View Map
-                        </button>
-
-                      </td>
-
-                    </tr>
-
-                  )
-                )}
-
-              </tbody>
-
-            </table>
-
-          </div>
-
-        </div>
-
-
-        {/* ==========================================
-            EXPLANATION
-        =========================================== */}
-
-        <div className="method-card">
-
-          <p className="eyebrow">
-            HOW GRIDLOCK WORKS
-          </p>
-
-          <h2>
-            Detection Method
-          </h2>
-
-
-          <div className="method-step">
-
-            <span>01</span>
-
-            <div>
-
-              <strong>
-                Locate planned projects
-              </strong>
-
-              <p>
-                Public utility project locations
-                are converted into geographic
-                coordinates.
-              </p>
+              </div>
 
             </div>
 
           </div>
 
 
-          <div className="method-step">
+          {/* =================================================
+              OPPORTUNITY VIEW
+          ================================================== */}
 
-            <span>02</span>
+          {view === "opportunities" && (
 
-            <div>
+            <OpportunityTable
+              opportunities={
+                opportunities
+              }
+              onSelect={
+                setSelectedOpportunity
+              }
+              isAffectedOpportunity={
+                isAffectedOpportunity
+              }
+              emergencyEvent={
+                emergencyEvent
+              }
+            />
 
-              <strong>
-                Compare utilities
-              </strong>
-
-              <p>
-                Georgia Power projects are compared
-                against Dominion Energy South
-                Carolina projects.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div className="method-step">
-
-            <span>03</span>
-
-            <div>
-
-              <strong>
-                Detect geographic overlap
-              </strong>
-
-              <p>
-                Project pairs whose calculated
-                center-to-center distance is under
-                25 miles are flagged.
-              </p>
-
-            </div>
-
-          </div>
+          )}
 
 
-          <div className="method-step">
+          {/* =================================================
+              GEORGIA VIEW
+          ================================================== */}
 
-            <span>04</span>
+          {view === "georgia" && (
 
-            <div>
+            <GeorgiaTable
+              projects={
+                georgiaProjects
+              }
+            />
 
-              <strong>
-                Compare timelines
-              </strong>
+          )}
 
-              <p>
-                Planned in-service dates are
-                compared to provide additional
-                coordination context.
-              </p>
 
-            </div>
+          {/* =================================================
+              DOMINION VIEW
+          ================================================== */}
 
-          </div>
+          {view === "dominion" && (
+
+            <DominionTable
+              projects={
+                dominionProjects
+              }
+            />
+
+          )}
 
         </div>
 
       </section>
 
+
+      {/* =====================================================
+          OPPORTUNITY DRAWER
+      ====================================================== */}
+
+      <OpportunityDrawer
+        opportunity={
+          selectedOpportunity
+        }
+        onClose={() =>
+          setSelectedOpportunity(null)
+        }
+        onOpenDashboard={() => {
+
+          if (!selectedOpportunity) {
+            return;
+          }
+
+          onViewOpportunity(
+            selectedOpportunity.originalIndex
+          );
+
+        }}
+      />
+
     </div>
+
   );
+
+}
+
+
+/* =========================================================
+   OPPORTUNITY TABLE
+========================================================= */
+
+function OpportunityTable({
+  opportunities,
+  onSelect,
+  isAffectedOpportunity,
+  emergencyEvent,
+}) {
+
+  return (
+
+    <div className="analysis-table-wrapper">
+
+      <table className="analysis-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              Opportunity
+            </th>
+
+            <th>
+              Georgia Power
+            </th>
+
+            <th>
+              Dominion Energy SC
+            </th>
+
+            <th>
+              Distance
+            </th>
+
+            <th>
+              Timeline Gap
+            </th>
+
+            <th>
+              Details
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          {opportunities.map(
+            (item, index) => {
+
+              const affected =
+                isAffectedOpportunity(item);
+
+              return (
+
+                <tr
+                  key={
+                    `${item.georgiaId}-${item.dominionId}-${index}`
+                  }
+                  className={
+                    affected
+                      ? "affected-opportunity-row"
+                      : ""
+                  }
+                >
+
+
+                  {/* OPPORTUNITY NUMBER */}
+
+                  <td>
+
+                    <div className="opportunity-number-cell">
+
+                      <span className="table-rank">
+                        #{index + 1}
+                      </span>
+
+
+                      {affected && (
+
+                        <span className="table-urgent-badge">
+                          ⚠ URGENT
+                        </span>
+
+                      )}
+
+                    </div>
+
+                  </td>
+
+
+                  {/* GEORGIA */}
+
+                  <td>
+
+                    <ProjectCell
+                      name={
+                        item.georgiaName
+                      }
+                      id={
+                        item.georgiaId
+                      }
+                      dotClass="ga-dot"
+                    />
+
+                  </td>
+
+
+                  {/* DOMINION */}
+
+                  <td>
+
+                    <ProjectCell
+                      name={
+                        item.dominionName
+                      }
+                      id={
+                        item.dominionId
+                      }
+                      dotClass="sc-dot"
+                    />
+
+                  </td>
+
+
+                  {/* DISTANCE */}
+
+                  <td>
+
+                    <span
+                      className={
+                        affected
+                          ? "distance-pill emergency-distance-pill"
+                          : "distance-pill"
+                      }
+                    >
+
+                      {item.distance} mi
+
+                    </span>
+
+                  </td>
+
+
+                  {/* TIMELINE */}
+
+                  <td>
+
+                    {formatDays(
+                      item.timeGapDays
+                    )}
+
+                  </td>
+
+
+                  {/* DETAILS */}
+
+                  <td>
+
+                    <button
+                      className={
+                        affected
+                          ? "view-map-button emergency-details-button"
+                          : "view-map-button"
+                      }
+                      onClick={() =>
+                        onSelect(item)
+                      }
+                    >
+
+                      {affected &&
+                      emergencyEvent?.active
+                        ? "View Event"
+                        : "View Details"}
+
+                    </button>
+
+                  </td>
+
+                </tr>
+
+              );
+
+            }
+          )}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  );
+
+}
+
+
+/* =========================================================
+   GEORGIA TABLE
+========================================================= */
+
+function GeorgiaTable({
+  projects,
+}) {
+
+  return (
+
+    <div className="analysis-table-wrapper">
+
+      <table className="analysis-table project-inventory-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              #
+            </th>
+
+            <th>
+              Project
+            </th>
+
+            <th>
+              Project ID
+            </th>
+
+            <th>
+              In-Service
+            </th>
+
+            <th>
+              Sponsor
+            </th>
+
+            <th>
+              Location
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          {projects.map(
+            (project, index) => (
+
+              <tr
+                key={
+                  `ga-${project.id}-${index}`
+                }
+              >
+
+                <td>
+
+                  <span className="table-rank">
+                    {index + 1}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <ProjectCell
+                    name={
+                      project.name
+                    }
+                    dotClass="ga-dot"
+                  />
+
+                </td>
+
+
+                <td>
+                  {project.id}
+                </td>
+
+
+                <td>
+                  {formatDate(
+                    project.date
+                  )}
+                </td>
+
+
+                <td>
+                  {project.sponsor || "—"}
+                </td>
+
+
+                <td>
+
+                  <ProjectLocation
+                    location1={
+                      project.location1
+                    }
+                    location2={
+                      project.location2
+                    }
+                  />
+
+                </td>
+
+              </tr>
+
+            )
+          )}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  );
+
+}
+
+
+/* =========================================================
+   DOMINION TABLE
+========================================================= */
+
+function DominionTable({
+  projects,
+}) {
+
+  return (
+
+    <div className="analysis-table-wrapper">
+
+      <table className="analysis-table project-inventory-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+              #
+            </th>
+
+            <th>
+              Project
+            </th>
+
+            <th>
+              Project ID
+            </th>
+
+            <th>
+              In-Service
+            </th>
+
+            <th>
+              Status
+            </th>
+
+            <th>
+              Location
+            </th>
+
+          </tr>
+
+        </thead>
+
+
+        <tbody>
+
+          {projects.map(
+            (project, index) => (
+
+              <tr
+                key={
+                  `sc-${project.id}-${index}`
+                }
+              >
+
+                <td>
+
+                  <span className="table-rank">
+                    {index + 1}
+                  </span>
+
+                </td>
+
+
+                <td>
+
+                  <ProjectCell
+                    name={
+                      project.name
+                    }
+                    dotClass="sc-dot"
+                  />
+
+                </td>
+
+
+                <td>
+                  {project.id}
+                </td>
+
+
+                <td>
+                  {formatDate(
+                    project.date
+                  )}
+                </td>
+
+
+                <td>
+                  {project.status || "—"}
+                </td>
+
+
+                <td>
+                  {project.location || "—"}
+                </td>
+
+              </tr>
+
+            )
+          )}
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  );
+
+}
+
+
+/* =========================================================
+   PROJECT CELL
+========================================================= */
+
+function ProjectCell({
+  name,
+  id,
+  dotClass,
+}) {
+
+  return (
+
+    <div className="table-project">
+
+      <span
+        className={
+          `mini-dot ${dotClass}`
+        }
+      />
+
+      <div>
+
+        <strong>
+          {name || "Unnamed Project"}
+        </strong>
+
+
+        {id && (
+
+          <small>
+            ID {id}
+          </small>
+
+        )}
+
+      </div>
+
+    </div>
+
+  );
+
+}
+
+
+/* =========================================================
+   LOCATION
+========================================================= */
+
+function ProjectLocation({
+  location1,
+  location2,
+}) {
+
+  if (!location1 && !location2) {
+    return "—";
+  }
+
+
+  if (
+    location1 &&
+    location2
+  ) {
+
+    return (
+
+      <div className="project-location">
+
+        <span>
+          {location1}
+        </span>
+
+        <span className="location-arrow">
+          →
+        </span>
+
+        <span>
+          {location2}
+        </span>
+
+      </div>
+
+    );
+
+  }
+
+
+  return (
+    location1 ||
+    location2
+  );
+
 }
 
 
@@ -531,6 +1159,63 @@ function SummaryCard({
     </div>
 
   );
+
+}
+
+
+/* =========================================================
+   DATE SORTING
+========================================================= */
+
+function compareDates(
+  dateA,
+  dateB
+) {
+
+  if (!dateA && !dateB) {
+    return 0;
+  }
+
+  if (!dateA) {
+    return 1;
+  }
+
+  if (!dateB) {
+    return -1;
+  }
+
+  return (
+    new Date(dateA) -
+    new Date(dateB)
+  );
+
+}
+
+
+/* =========================================================
+   FORMAT DATE
+========================================================= */
+
+function formatDate(value) {
+
+  if (!value) {
+    return "Unknown";
+  }
+
+  const date =
+    new Date(
+      `${value}T00:00:00`
+    );
+
+  return date.toLocaleDateString(
+    undefined,
+    {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    }
+  );
+
 }
 
 
@@ -540,27 +1225,41 @@ function SummaryCard({
 
 function formatDays(days) {
 
-  if (days === null || days === undefined) {
+  if (
+    days === null ||
+    days === undefined
+  ) {
     return "Unknown";
   }
+
 
   if (days === 0) {
     return "Same date";
   }
 
+
   if (days < 60) {
     return `${days} days`;
   }
 
+
   const months =
-    Math.round(days / 30.44);
+    Math.round(
+      days / 30.44
+    );
+
 
   if (months < 24) {
     return `${months} months`;
   }
 
+
   const years =
-    (days / 365.25).toFixed(1);
+    (
+      days / 365.25
+    ).toFixed(1);
+
 
   return `${years} years`;
+
 }
