@@ -1536,3 +1536,1137 @@ button {
   }
 
 }
+/* =========================================================
+   ANALYSIS VIEW + SORT CONTROLS
+========================================================= */
+
+.analysis-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.analysis-controls .sort-control {
+  min-width: 190px;
+}
+
+.analysis-controls .sort-control:first-child {
+  min-width: 235px;
+}
+
+
+/* =========================================================
+   PROJECT INVENTORY TABLE
+========================================================= */
+
+.project-inventory-table td {
+  vertical-align: middle;
+}
+
+.project-inventory-table
+.table-project {
+  min-width: 260px;
+}
+
+
+/* =========================================================
+   PROJECT LOCATION
+========================================================= */
+
+.project-location {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  max-width: 300px;
+
+  color: #475569;
+
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.location-arrow {
+  flex: 0 0 auto;
+
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   RESPONSIVE CONTROLS
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .analysis-controls {
+    width: 100%;
+
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .analysis-controls
+  .sort-control {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .analysis-controls
+  .sort-control:first-child {
+    min-width: 0;
+  }
+
+}
+/* =========================================================
+   GRIDLOCK LIVE SENSOR MONITOR
+========================================================= */
+
+.sensor-monitor {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  min-width: 150px;
+  padding: 8px 12px;
+
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+
+  background: rgba(255, 255, 255, 0.05);
+  color: white;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.sensor-monitor:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.sensor-monitor:active {
+  transform: scale(0.98);
+}
+
+.sensor-monitor-text {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  line-height: 1.15;
+}
+
+.sensor-monitor-text strong {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.sensor-monitor-text small {
+  margin-top: 3px;
+
+  color: #94a3b8;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   SENSOR - DISCONNECTED
+========================================================= */
+
+.sensor-monitor.disconnected {
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
+.sensor-monitor.disconnected .sensor-monitor-icon {
+  color: #94a3b8;
+}
+
+
+/* =========================================================
+   SENSOR - CONNECTED
+========================================================= */
+
+.sensor-live-dot {
+  width: 9px;
+  height: 9px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #22c55e;
+
+  box-shadow:
+    0 0 0 4px rgba(34, 197, 94, 0.12);
+
+  animation: sensorPulse 2s infinite;
+}
+
+.sensor-monitor.connected {
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.sensor-monitor.connected .sensor-monitor-text strong {
+  color: #86efac;
+}
+
+
+/* =========================================================
+   SENSOR - EMERGENCY
+========================================================= */
+
+.sensor-monitor.emergency {
+  border-color: rgba(239, 68, 68, 0.65);
+
+  background: rgba(239, 68, 68, 0.13);
+
+  animation: emergencyMonitorPulse 1.4s infinite;
+}
+
+.sensor-monitor.emergency:hover {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+.sensor-monitor.emergency .sensor-monitor-icon {
+  color: #f87171;
+}
+
+.sensor-monitor.emergency .sensor-monitor-text strong {
+  color: #fecaca;
+}
+
+.sensor-monitor.emergency .sensor-monitor-text small {
+  color: #fca5a5;
+}
+
+.sensor-monitor-icon {
+  flex-shrink: 0;
+
+  font-size: 16px;
+}
+
+
+/* =========================================================
+   SENSOR ERROR BANNER
+========================================================= */
+
+.sensor-error-banner {
+  padding: 10px 24px;
+
+  border-bottom: 1px solid #fecaca;
+
+  background: #fef2f2;
+  color: #991b1b;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   DASHBOARD ACTIVE EMERGENCY BANNER
+========================================================= */
+
+.dashboard-emergency-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+
+  margin: 0 28px 20px;
+  padding: 13px 16px;
+
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+
+  background: #fff7f7;
+
+  box-shadow: 0 4px 15px rgba(220, 38, 38, 0.06);
+}
+
+.dashboard-emergency-left {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.dashboard-emergency-icon {
+  display: grid;
+  place-items: center;
+
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  background: #fee2e2;
+  color: #dc2626;
+
+  font-size: 17px;
+}
+
+.dashboard-emergency-left div {
+  display: flex;
+  flex-direction: column;
+}
+
+.dashboard-emergency-left strong {
+  color: #dc2626;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+}
+
+.dashboard-emergency-left span {
+  margin-top: 2px;
+
+  color: #0f172a;
+
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dashboard-emergency-impact {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  margin-left: auto;
+}
+
+.dashboard-emergency-impact span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+.dashboard-emergency-impact strong {
+  color: #dc2626;
+
+  font-size: 15px;
+}
+
+.dashboard-emergency-banner > button {
+  padding: 8px 13px;
+
+  border: 0;
+  border-radius: 8px;
+
+  background: #dc2626;
+  color: white;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: background 0.2s ease;
+}
+
+.dashboard-emergency-banner > button:hover {
+  background: #b91c1c;
+}
+
+
+/* =========================================================
+   DRAWER BACKDROP
+========================================================= */
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 2000;
+
+  background: rgba(15, 23, 42, 0.4);
+
+  backdrop-filter: blur(2px);
+
+  animation: emergencyFadeIn 0.2s ease;
+}
+
+
+/* =========================================================
+   EMERGENCY DRAWER
+========================================================= */
+
+.emergency-drawer {
+  position: fixed;
+
+  top: 0;
+  right: 0;
+
+  z-index: 2100;
+
+  width: min(600px, 94vw);
+  height: 100vh;
+
+  overflow-y: auto;
+
+  background: #ffffff;
+
+  box-shadow:
+    -18px 0 50px rgba(15, 23, 42, 0.25);
+
+  animation: emergencyDrawerSlideIn 0.23s ease;
+}
+
+
+/* =========================================================
+   EMERGENCY DRAWER HEADER
+========================================================= */
+
+.emergency-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  padding: 25px;
+
+  border-top: 5px solid #dc2626;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.emergency-eyebrow {
+  margin: 0 0 7px;
+
+  color: #dc2626;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.emergency-header h2 {
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 27px;
+}
+
+.emergency-header p:last-child {
+  margin: 5px 0 0;
+
+  color: #64748b;
+
+  font-size: 11px;
+}
+
+.drawer-close {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #64748b;
+
+  font-size: 22px;
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.drawer-close:hover {
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+
+/* =========================================================
+   EMERGENCY ALERT CARD
+========================================================= */
+
+.emergency-alert {
+  display: grid;
+
+  grid-template-columns: 48px 1fr;
+
+  gap: 13px;
+
+  margin: 22px 24px;
+  padding: 17px;
+
+  border: 1px solid #fecaca;
+  border-radius: 13px;
+
+  background: #fff7f7;
+}
+
+.emergency-alert-icon {
+  display: grid;
+  place-items: center;
+
+  width: 46px;
+  height: 46px;
+
+  border-radius: 11px;
+
+  background: #fee2e2;
+  color: #dc2626;
+
+  font-size: 22px;
+}
+
+.emergency-alert span {
+  display: block;
+
+  color: #dc2626;
+
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+.emergency-alert strong {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #0f172a;
+
+  font-size: 13px;
+}
+
+.emergency-alert p {
+  margin: 5px 0 0;
+
+  color: #64748b;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   EMERGENCY SECTIONS
+========================================================= */
+
+.emergency-section {
+  margin: 25px 24px 0;
+}
+
+.emergency-section-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 10px;
+
+  color: #475569;
+
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+
+.urgent-badge {
+  padding: 4px 7px;
+
+  border-radius: 999px;
+
+  background: #fee2e2;
+  color: #dc2626;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   EVENT IMPACT METRICS
+========================================================= */
+
+.impact-grid {
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 10px;
+}
+
+.impact-metric {
+  padding: 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  background: #f8fafc;
+}
+
+.impact-metric strong {
+  display: block;
+
+  color: #0f172a;
+
+  font-size: 25px;
+}
+
+.impact-metric span {
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   AFFECTED INFRASTRUCTURE
+========================================================= */
+
+.affected-project-list {
+  overflow: hidden;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.affected-project {
+  display: grid;
+
+  grid-template-columns: 11px 1fr;
+
+  gap: 10px;
+
+  padding: 15px;
+
+  border-bottom: 1px solid #edf1f5;
+}
+
+.affected-project:last-child {
+  border-bottom: none;
+}
+
+.affected-project-dot {
+  width: 10px;
+  height: 10px;
+
+  margin-top: 4px;
+
+  border-radius: 50%;
+}
+
+.affected-project .ga-dot {
+  background: #2563eb;
+}
+
+.affected-project .sc-dot {
+  background: #f97316;
+}
+
+.affected-project small,
+.affected-project span {
+  display: block;
+
+  color: #94a3b8;
+
+  font-size: 9px;
+}
+
+.affected-project strong {
+  display: block;
+
+  margin: 3px 0;
+
+  color: #0f172a;
+
+  font-size: 12px;
+}
+
+.emergency-empty-text {
+  padding: 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  background: #f8fafc;
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   RESPONSE RESOURCES - EMPTY STATE
+========================================================= */
+
+.resources-empty {
+  padding: 30px 24px;
+
+  border: 1px dashed #cbd5e1;
+  border-radius: 14px;
+
+  background: #f8fafc;
+
+  text-align: center;
+}
+
+.resources-empty-icon {
+  margin-bottom: 10px;
+
+  color: #94a3b8;
+
+  font-size: 31px;
+}
+
+.resources-empty > strong {
+  display: block;
+
+  color: #334155;
+
+  font-size: 12px;
+}
+
+.resources-empty p {
+  max-width: 370px;
+
+  margin: 8px auto 15px;
+
+  color: #64748b;
+
+  font-size: 10px;
+  line-height: 1.55;
+}
+
+.integration-badge {
+  display: inline-block;
+
+  padding: 5px 8px;
+
+  border-radius: 999px;
+
+  background: #e2e8f0;
+  color: #64748b;
+
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+}
+
+
+/* =========================================================
+   FUTURE RESOURCE CARDS
+
+   These will automatically be useful later when
+   responseResources contains real resource data.
+========================================================= */
+
+.resource-list {
+  display: grid;
+  gap: 8px;
+}
+
+.resource-card {
+  display: grid;
+
+  grid-template-columns: 32px 1fr;
+
+  gap: 10px;
+
+  padding: 13px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+
+  background: #ffffff;
+}
+
+.resource-rank {
+  display: grid;
+  place-items: center;
+
+  width: 29px;
+  height: 29px;
+
+  border-radius: 8px;
+
+  background: #e0f2fe;
+  color: #0284c7;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.resource-card strong,
+.resource-card span,
+.resource-card small {
+  display: block;
+}
+
+.resource-card strong {
+  color: #0f172a;
+
+  font-size: 11px;
+}
+
+.resource-card span,
+.resource-card small {
+  margin-top: 3px;
+
+  color: #64748b;
+
+  font-size: 9px;
+}
+
+
+/* =========================================================
+   EMERGENCY DRAWER FOOTER
+========================================================= */
+
+.emergency-footer {
+  padding: 25px 24px 35px;
+}
+
+.emergency-map-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  width: 100%;
+
+  padding: 14px 16px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: #dc2626;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
+}
+
+.emergency-map-button:hover {
+  background: #b91c1c;
+}
+
+.emergency-map-button:active {
+  transform: scale(0.99);
+}
+
+
+/* =========================================================
+   EMERGENCY MAP LEGEND
+========================================================= */
+
+.emergency-legend {
+  color: #dc2626 !important;
+
+  font-weight: 700;
+}
+
+.emergency-legend-dot {
+  display: inline-block;
+
+  width: 9px;
+  height: 9px;
+
+  margin-right: 5px;
+
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+
+  background: #dc2626;
+
+  box-shadow:
+    0 0 0 3px rgba(220, 38, 38, 0.18);
+}
+
+
+/* =========================================================
+   ANIMATIONS
+========================================================= */
+
+@keyframes emergencyDrawerSlideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes emergencyFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sensorPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 4px rgba(34, 197, 94, 0.12);
+  }
+
+  50% {
+    box-shadow:
+      0 0 0 7px rgba(34, 197, 94, 0.03);
+  }
+}
+
+@keyframes emergencyMonitorPulse {
+  0%,
+  100% {
+    border-color: rgba(239, 68, 68, 0.5);
+  }
+
+  50% {
+    border-color: rgba(239, 68, 68, 1);
+  }
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .dashboard-emergency-banner {
+    margin-left: 16px;
+    margin-right: 16px;
+
+    flex-wrap: wrap;
+  }
+
+  .dashboard-emergency-impact {
+    order: 3;
+
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .sensor-monitor {
+    min-width: auto;
+  }
+
+  .sensor-monitor-text small {
+    display: none;
+  }
+
+}
+
+
+@media (max-width: 650px) {
+
+  .emergency-drawer {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .impact-grid {
+    grid-template-columns: 1fr;
+  }
+
+}
+/* =========================================================
+   ANALYSIS PAGE - LIVE EVENT
+========================================================= */
+
+.analysis-emergency-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin: 0 32px 22px;
+  padding: 12px 16px;
+
+  border: 1px solid #fecaca;
+  border-radius: 12px;
+
+  background: #fff7f7;
+}
+
+.analysis-emergency-notice-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analysis-emergency-symbol {
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 36px;
+
+  border-radius: 9px;
+
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.analysis-emergency-notice-left div {
+  display: flex;
+  flex-direction: column;
+}
+
+.analysis-emergency-notice-left strong {
+  color: #dc2626;
+
+  font-size: 9px;
+  letter-spacing: 0.07em;
+}
+
+.analysis-emergency-notice-left span {
+  margin-top: 2px;
+
+  color: #0f172a;
+
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.analysis-emergency-notice-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  color: #64748b;
+
+  font-size: 10px;
+}
+
+.analysis-emergency-notice-right strong {
+  color: #dc2626;
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   AFFECTED OPPORTUNITY ROW
+========================================================= */
+
+.analysis-table tbody tr.affected-opportunity-row {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(220, 38, 38, 0.13),
+      rgba(254, 242, 242, 0.75)
+    ) !important;
+
+  box-shadow:
+    inset 5px 0 0 #dc2626;
+
+  animation:
+    affectedOpportunityPulse
+    2s ease-in-out infinite;
+}
+
+.analysis-table tbody tr.affected-opportunity-row td {
+  background: transparent !important;
+}
+
+.analysis-table tbody tr.affected-opportunity-row:hover {
+  background:
+    linear-gradient(
+      90deg,
+      rgba(220, 38, 38, 0.19),
+      rgba(254, 226, 226, 0.85)
+    ) !important;
+}
+
+
+/* Rank + urgent badge */
+
+.opportunity-number-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-urgent-badge {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 4px 7px;
+
+  border: 1px solid #fecaca;
+  border-radius: 999px;
+
+  background: #fee2e2;
+  color: #dc2626;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+
+  white-space: nowrap;
+}
+
+
+/* Distance becomes more urgent */
+
+.emergency-distance-pill {
+  border: 1px solid #fca5a5 !important;
+
+  background: #fee2e2 !important;
+  color: #b91c1c !important;
+}
+
+
+/* Event button */
+
+.emergency-details-button {
+  border-color: #fca5a5 !important;
+
+  background: #dc2626 !important;
+  color: white !important;
+}
+
+.emergency-details-button:hover {
+  background: #b91c1c !important;
+}
+
+
+/* Subtle pulse */
+
+@keyframes affectedOpportunityPulse {
+
+  0%,
+  100% {
+    box-shadow:
+      inset 5px 0 0 #dc2626;
+  }
+
+  50% {
+    box-shadow:
+      inset 5px 0 0 #ef4444,
+      inset 0 0 24px
+      rgba(220, 38, 38, 0.06);
+  }
+
+}
