@@ -15,6 +15,37 @@ supabase: Client = create_client(
     os.environ.get("SUPABASE_PUBLISHABLE_KEY") # type: ignore
 )
 
+@app.route('/api/southCarolinaCosts')
+def getSouthCarolinaCosts():
+    try:
+        response = supabase.table('Estimated_Resources_South_Carolina').select("*").execute()
+    except APIError as error:
+        return f'<p>Error loading places: {error.message}</p>'
+
+    places = response.data or []
+    return jsonify(places)
+
+@app.route('/api/georgiaCosts')
+def getgeorgiaCosts():
+    try:
+        response = supabase.table('Estimated_Resources_Georgia').select("*").execute()
+    except APIError as error:
+        return f'<p>Error loading places: {error.message}</p>'
+
+    places = response.data or []
+    return jsonify(places)
+
+@app.route('/api/collaborativeSavings')
+def getCollaborativeSavings():
+    try:
+        response = supabase.table('Collaborative_Savings').select("*").execute()
+    except APIError as error:
+        return f'<p>Error loading places: {error.message}</p>'
+
+    places = response.data or []
+    return jsonify(places)
+
+
 @app.route('/api/georgia')
 def georgiaData():
     try:
