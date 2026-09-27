@@ -13,7 +13,7 @@ import {
 } from "react";
 
 import "leaflet/dist/leaflet.css";
-
+import AICostAnalysis from "./AICostAnalysis";
 
 const GEORGIA_COLOR = "#2563eb";
 const DOMINION_COLOR = "#f97316";
@@ -167,6 +167,8 @@ export default function OpportunityDrawer({
         }}
       >
 
+        
+
         {/* =================================================
             RESIZE HANDLE
         ================================================== */}
@@ -208,7 +210,6 @@ export default function OpportunityDrawer({
           </button>
 
         </div>
-
 
         {/* MAP */}
 
@@ -426,7 +427,9 @@ export default function OpportunityDrawer({
 
         </div>
 
-
+        <AICostAnalysis
+          opportunity={opportunity}
+        />
         {/* FOOTER */}
 
         <div className="drawer-footer">
