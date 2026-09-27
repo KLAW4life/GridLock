@@ -1,48 +1,120 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import GridMap from "./components/GridMap";
 import OpportunityList from "./components/OpportunityList";
 import AnalysisPage from "./components/AnalysisPage";
+
+import InfrastructureMap from "./components/InfrastructureMap";
+import InfrastructureOpportunityList from "./components/InfrastructureOpportunityList";
+
 import "./index.css";
 
 import useArduinoSerial from "./hooks/useArduinoSerial";
 import LiveGridMonitor from "./components/LiveGridMonitor";
 import EmergencyDrawer from "./components/EmergencyDrawer";
 
+import {
+  calculateInfrastructureOpportunities,
+  normalizeInfrastructureCollection,
+} from "./utils/infrastructureAnalysis.js";
+
 
 export default function App() {
 
   /* =========================================================
-     EXISTING GRIDLOCK DATA
+     PLANNED PROJECT DATA
   ========================================================= */
 
-  const [data, setData] = useState(null);
-
-  const [selectedOverlap, setSelectedOverlap] =
+  const [data, setData] =
     useState(null);
+
+
+  /* =========================================================
+     INFRASTRUCTURE DATA
+  ========================================================= */
+
+  const [
+    infrastructureData,
+    setInfrastructureData,
+  ] = useState(null);
+
+
+  const [
+    infrastructureLoading,
+    setInfrastructureLoading,
+  ] = useState(true);
+
+
+  const [
+    infrastructureError,
+    setInfrastructureError,
+  ] = useState("");
+
+
+  /* =========================================================
+     MAP DATASET MODE
+  ========================================================= */
+
+  const [mapDataset, setMapDataset] =
+    useState("planned");
+
+
+  /* =========================================================
+     SELECTIONS
+  ========================================================= */
+
+  const [
+    selectedOverlap,
+    setSelectedOverlap,
+  ] = useState(null);
+
+
+  const [
+    selectedInfrastructureOpportunity,
+    setSelectedInfrastructureOpportunity,
+  ] = useState(null);
+
+
+  /* =========================================================
+     PAGE
+  ========================================================= */
 
   const [page, setPage] =
     useState("dashboard");
 
-  const [layers, setLayers] = useState({
-    georgia: true,
-    dominion: true,
-    overlaps: true,
-  });
+
+  /* =========================================================
+     MAP LAYERS
+  ========================================================= */
+
+  const [layers, setLayers] =
+    useState({
+      georgia: true,
+      dominion: true,
+      overlaps: true,
+    });
+
 
   const [error, setError] =
     useState("");
 
 
   /* =========================================================
-     EMERGENCY DRAWER
+     EMERGENCY
   ========================================================= */
 
-  const [emergencyOpen, setEmergencyOpen] =
-    useState(false);
+  const [
+    emergencyOpen,
+    setEmergencyOpen,
+  ] = useState(false);
 
 
   /* =========================================================
-     ARDUINO CONNECTION
+     ARDUINO
   ========================================================= */
 
   const {
@@ -55,7 +127,7 @@ export default function App() {
 
 
   /* =========================================================
-     LOAD GRIDLOCK DATA
+     LOAD PLANNED PROJECT DATA
   ========================================================= */
 
   useEffect(() => {
@@ -65,11 +137,9 @@ export default function App() {
       .then((response) => {
 
         if (!response.ok) {
-
           throw new Error(
             "Could not load gridlock-data.json"
           );
-
         }
 
         return response.json();
@@ -86,7 +156,133 @@ export default function App() {
 
 
   /* =========================================================
-     SELECTED OPPORTUNITY
+     LOAD INFRASTRUCTURE GEOJSON
+  ========================================================= */
+
+  useEffect(() => {
+
+    async function loadInfrastructure() {
+
+      try {
+
+        setInfrastructureLoading(
+          true
+        );
+
+        setInfrastructureError("");
+
+
+        const [
+          georgiaResponse,
+          dominionResponse,
+        ] =
+          await Promise.all([
+            fetch(
+              "/georgia-power-infrastructure.geojson"
+            ),
+
+            fetch(
+              "/dominion-infrastructure.geojson"
+            ),
+          ]);
+
+
+        if (
+          !georgiaResponse.ok ||
+          !dominionResponse.ok
+        ) {
+
+          throw new Error(
+            "Could not load infrastructure GeoJSON files."
+          );
+
+        }
+
+
+        const [
+          georgiaGeoJSON,
+          dominionGeoJSON,
+        ] =
+          await Promise.all([
+            georgiaResponse.json(),
+            dominionResponse.json(),
+          ]);
+
+
+        const georgia =
+          normalizeInfrastructureCollection(
+            georgiaGeoJSON,
+            "Georgia Power"
+          );
+
+
+        const dominion =
+          normalizeInfrastructureCollection(
+            dominionGeoJSON,
+            "Dominion Energy SC"
+          );
+
+
+        setInfrastructureData({
+          georgia,
+          dominion,
+        });
+
+      }
+
+      catch (err) {
+
+        console.error(err);
+
+        setInfrastructureError(
+          err.message
+        );
+
+      }
+
+      finally {
+
+        setInfrastructureLoading(
+          false
+        );
+
+      }
+
+    }
+
+
+    loadInfrastructure();
+
+  }, []);
+
+
+  /* =========================================================
+     INFRASTRUCTURE OPPORTUNITIES
+  ========================================================= */
+
+  const infrastructureOpportunities =
+    useMemo(() => {
+
+      if (
+        !infrastructureData
+      ) {
+        return [];
+      }
+
+
+      return calculateInfrastructureOpportunities(
+        infrastructureData.georgia,
+        infrastructureData.dominion,
+        25
+      );
+
+    }, [
+      infrastructureData,
+    ]);
+
+
+  /* =========================================================
+     SELECTED PLANNED OPPORTUNITY
   ========================================================= */
 
   const selectedOpportunity =
@@ -99,9 +295,11 @@ export default function App() {
         return null;
       }
 
+
       return (
-        data.overlaps[selectedOverlap] ??
-        null
+        data.overlaps[
+          selectedOverlap
+        ] ?? null
       );
 
     }, [
@@ -111,27 +309,19 @@ export default function App() {
 
 
   /* =========================================================
-     LIVE EMERGENCY EVENT
+     EMERGENCY EVENT
   ========================================================= */
 
   const emergencyEvent =
     useMemo(() => {
 
-      /*
-       * If more than one sensor triggers,
-       * physical disturbance gets the
-       * highest display priority.
-       */
-
-
-      // TILT SENSOR
-      if (sensorData.tiltEvent) {
+      if (
+        sensorData.tiltEvent
+      ) {
 
         return {
           active: true,
-
           type: "physical",
-
           label:
             "Physical Disturbance",
         };
@@ -139,14 +329,13 @@ export default function App() {
       }
 
 
-      // THERMISTOR
-      if (sensorData.thermalAlarm) {
+      if (
+        sensorData.thermalAlarm
+      ) {
 
         return {
           active: true,
-
           type: "heat",
-
           label:
             "Extreme Heat",
         };
@@ -154,14 +343,13 @@ export default function App() {
       }
 
 
-      // POTENTIOMETER
-      if (sensorData.loadAlarm) {
+      if (
+        sensorData.loadAlarm
+      ) {
 
         return {
           active: true,
-
           type: "grid",
-
           label:
             "Grid Stress",
         };
@@ -171,9 +359,7 @@ export default function App() {
 
       return {
         active: false,
-
         type: null,
-
         label:
           "System Normal",
       };
@@ -182,21 +368,8 @@ export default function App() {
 
 
   /* =========================================================
-     HACKATHON DEMO EVENT LOCATION
+     DEMO EMERGENCY OPPORTUNITY
   ========================================================= */
-
-  /*
-   * The Arduino currently detects the EVENT,
-   * but it does not provide GPS coordinates.
-   *
-   * For the hackathon demonstration we associate
-   * the disturbance with this coordination
-   * opportunity.
-   *
-   * We're finding the 20509 ↔ 6808 S opportunity
-   * specifically so changing table sorting later
-   * won't accidentally change the demo location.
-   */
 
   const emergencyOpportunity =
     useMemo(() => {
@@ -206,27 +379,24 @@ export default function App() {
       }
 
 
-      const demoOpportunity =
+      const demo =
         data.overlaps.find(
           (opportunity) =>
 
             String(
               opportunity.georgiaId
-            ).trim() === "20509" &&
+            ).trim() ===
+              "20509" &&
 
             String(
               opportunity.dominionId
-            ).trim() === "6808 S"
+            ).trim() ===
+              "6808 S"
         );
 
 
-      /*
-       * Fallback to the first opportunity
-       * if the IDs aren't found.
-       */
-
       return (
-        demoOpportunity ??
+        demo ??
         data.overlaps[0] ??
         null
       );
@@ -245,9 +415,7 @@ export default function App() {
         !emergencyEvent.active ||
         !emergencyOpportunity
       ) {
-
         return [];
-
       }
 
 
@@ -307,9 +475,7 @@ export default function App() {
         !emergencyEvent.active ||
         !emergencyOpportunity
       ) {
-
         return [];
-
       }
 
 
@@ -327,108 +493,111 @@ export default function App() {
      RESPONSE RESOURCES
   ========================================================= */
 
-  /*
-   * KEEP THIS EMPTY FOR NOW.
-   *
-   * You don't have the real utility
-   * resource dataset yet.
-   *
-   * The Emergency Drawer will show
-   * "DATA INTEGRATION PENDING".
-   *
-   * Later we can populate this with
-   * crews, equipment, response assets,
-   * substations, etc.
-   */
-
   const responseResources = [];
 
 
   /* =========================================================
-     AUTO-OPEN EMERGENCY DRAWER
+     AUTO OPEN EMERGENCY
   ========================================================= */
 
   useEffect(() => {
 
-    if (emergencyEvent.active) {
-
+    if (
+      emergencyEvent.active
+    ) {
       setEmergencyOpen(true);
-
     }
 
-  }, [emergencyEvent.active]);
+  }, [
+    emergencyEvent.active,
+  ]);
 
 
   /* =========================================================
-     TOGGLE MAP LAYERS
+     MAP LAYERS
   ========================================================= */
 
-  const toggleLayer = (name) => {
+  const toggleLayer =
+    (name) => {
 
-    setLayers((current) => ({
-      ...current,
+      setLayers(
+        (current) => ({
+          ...current,
 
-      [name]:
-        !current[name],
-    }));
-
-  };
-
-
-  /* =========================================================
-     OPEN OPPORTUNITY FROM ANALYSIS PAGE
-  ========================================================= */
-
-  const openOpportunityOnMap =
-    (index) => {
-
-      setSelectedOverlap(index);
-
-      setPage("dashboard");
+          [name]:
+            !current[name],
+        })
+      );
 
     };
 
 
   /* =========================================================
-     VIEW EMERGENCY ON MAP
+     OPEN PLANNED OPPORTUNITY
   ========================================================= */
 
-  const openEmergencyOnMap = () => {
+  const openOpportunityOnMap =
+    (index) => {
 
-    setEmergencyOpen(false);
-
-    setPage("dashboard");
-
-
-    if (!emergencyOpportunity) {
-      return;
-    }
-
-
-    /*
-     * Find the actual array index of
-     * our emergency opportunity.
-     */
-
-    const index =
-      data.overlaps.findIndex(
-        (opportunity) =>
-          opportunity ===
-          emergencyOpportunity
+      setSelectedOverlap(
+        index
       );
 
+      setMapDataset(
+        "planned"
+      );
 
-    if (index !== -1) {
+      setPage(
+        "dashboard"
+      );
 
-      setSelectedOverlap(index);
-
-    }
-
-  };
+    };
 
 
   /* =========================================================
-     ERROR SCREEN
+     OPEN EMERGENCY
+  ========================================================= */
+
+  const openEmergencyOnMap =
+    () => {
+
+      setEmergencyOpen(false);
+
+      setMapDataset(
+        "planned"
+      );
+
+      setPage(
+        "dashboard"
+      );
+
+
+      if (
+        !emergencyOpportunity
+      ) {
+        return;
+      }
+
+
+      const index =
+        data.overlaps.findIndex(
+          (opportunity) =>
+            opportunity ===
+            emergencyOpportunity
+        );
+
+
+      if (index !== -1) {
+        setSelectedOverlap(
+          index
+        );
+      }
+
+    };
+
+
+  /* =========================================================
+     ERROR
   ========================================================= */
 
   if (error) {
@@ -445,11 +614,6 @@ export default function App() {
           {error}
         </p>
 
-        <p>
-          Run create_overlap_table.py first
-          so the JSON file is generated.
-        </p>
-
       </main>
 
     );
@@ -458,7 +622,7 @@ export default function App() {
 
 
   /* =========================================================
-     LOADING SCREEN
+     LOADING
   ========================================================= */
 
   if (!data) {
@@ -483,7 +647,7 @@ export default function App() {
 
 
   /* =========================================================
-     APPLICATION
+     APP
   ========================================================= */
 
   return (
@@ -497,18 +661,16 @@ export default function App() {
 
       <header className="topbar">
 
-
-        {/* BRAND */}
-
         <div
           className="brand"
-
           onClick={() =>
-            setPage("dashboard")
+            setPage(
+              "dashboard"
+            )
           }
-
           style={{
-            cursor: "pointer",
+            cursor:
+              "pointer",
           }}
         >
 
@@ -524,8 +686,7 @@ export default function App() {
             </strong>
 
             <small>
-              Cross-utility transmission
-              intelligence
+              Cross-utility transmission intelligence
             </small>
 
           </div>
@@ -533,26 +694,21 @@ export default function App() {
         </div>
 
 
-        {/* =================================================
-            NAVBAR RIGHT
-        ================================================== */}
-
         <div className="topbar-right">
-
-
-          {/* NAVIGATION */}
 
           <nav className="main-nav">
 
             <button
               className={
-                page === "dashboard"
+                page ===
+                "dashboard"
                   ? "nav-link active"
                   : "nav-link"
               }
-
               onClick={() =>
-                setPage("dashboard")
+                setPage(
+                  "dashboard"
+                )
               }
             >
               Dashboard
@@ -561,13 +717,15 @@ export default function App() {
 
             <button
               className={
-                page === "analysis"
+                page ===
+                "analysis"
                   ? "nav-link active"
                   : "nav-link"
               }
-
               onClick={() =>
-                setPage("analysis")
+                setPage(
+                  "analysis"
+                )
               }
             >
               Analysis
@@ -576,36 +734,26 @@ export default function App() {
           </nav>
 
 
-          {/* =================================================
-              LIVE ARDUINO MONITOR
-          ================================================== */}
-
           <LiveGridMonitor
-
             connected={
               connected
             }
-
             event={
               emergencyEvent
             }
-
             onConnect={
               connect
             }
-
             onDisconnect={
               disconnect
             }
-
             onOpenEvent={() =>
-              setEmergencyOpen(true)
+              setEmergencyOpen(
+                true
+              )
             }
-
           />
 
-
-          {/* HACKATHON BADGE */}
 
           <span className="hackathon-badge">
             ShellHacks 2026
@@ -615,10 +763,6 @@ export default function App() {
 
       </header>
 
-
-      {/* =====================================================
-          SENSOR ERROR
-      ====================================================== */}
 
       {sensorError && (
 
@@ -638,17 +782,16 @@ export default function App() {
 
 
       {/* =====================================================
-          DASHBOARD PAGE
+          DASHBOARD
       ====================================================== */}
 
-      {page === "dashboard" && (
+      {page ===
+        "dashboard" && (
 
         <>
 
 
-          {/* =================================================
-              HERO
-          ================================================== */}
+          {/* HERO */}
 
           <section className="hero">
 
@@ -660,94 +803,203 @@ export default function App() {
 
 
               <h1>
-                Find where the grid should
-                work together.
+                Find where the grid should work together.
               </h1>
 
 
               <p className="hero-description">
 
-                Compare planned Georgia Power
-                and Dominion Energy South
-                Carolina projects and surface
-                cross-utility coordination
-                opportunities.
+                Compare planned projects
+                and mapped infrastructure
+                across neighboring utility
+                systems.
 
               </p>
 
             </div>
 
 
-            {/* =============================================
-                STATS
-            ============================================== */}
-
             <div className="stats">
 
+              {mapDataset ===
+              "planned" ? (
 
-              <Stat
-                value={
-                  data.georgia.length
-                }
+                <>
 
-                label=
-                  "Georgia projects"
-              />
+                  <Stat
+                    value={
+                      data.georgia.length
+                    }
+                    label="Georgia projects"
+                  />
 
+                  <Stat
+                    value={
+                      data.dominion.length
+                    }
+                    label="Dominion projects"
+                  />
 
-              <Stat
-                value={
-                  data.dominion.length
-                }
+                  <Stat
+                    value={
+                      data.overlaps.length
+                    }
+                    label="Opportunities"
+                  />
 
-                label=
-                  "Dominion projects"
-              />
+                  <Stat
+                    value={`<${
+                      data.metadata
+                        ?.overlapDistanceMiles ??
+                      25
+                    } mi`}
+                    label="Overlap threshold"
+                  />
 
+                </>
 
-              <Stat
-                value={
-                  data.overlaps.length
-                }
+              ) : (
 
-                label=
-                  "Opportunities"
-              />
+                <>
 
+                  <Stat
+                    value={
+                      infrastructureData
+                        ?.georgia
+                        .length ??
+                      "—"
+                    }
+                    label="Georgia infrastructure"
+                  />
 
-              <Stat
-                value={
-                  `<${
-                    data.metadata
-                      ?.overlapDistanceMiles ??
-                    25
-                  } mi`
-                }
+                  <Stat
+                    value={
+                      infrastructureData
+                        ?.dominion
+                        .length ??
+                      "—"
+                    }
+                    label="Dominion infrastructure"
+                  />
 
-                label=
-                  "Overlap threshold"
-              />
+                  <Stat
+                    value={
+                      infrastructureOpportunities
+                        .length
+                    }
+                    label="Proximity matches"
+                  />
+
+                  <Stat
+                    value="<25 mi"
+                    label="Distance threshold"
+                  />
+
+                </>
+
+              )}
 
             </div>
 
           </section>
 
 
-          {/* =================================================
-              ACTIVE EMERGENCY BANNER
-          ================================================== */}
+          {/* ===============================================
+              DATASET SWITCHER
+          ================================================ */}
+
+          <section className="dataset-switch-section">
+
+            <div className="dataset-switch-copy">
+
+              <p className="eyebrow">
+                MAP DATASET
+              </p>
+
+              <strong>
+
+                {mapDataset ===
+                "planned"
+                  ? "Planned Project Data"
+                  : "Infrastructure Query Data"}
+
+              </strong>
+
+              <span>
+
+                {mapDataset ===
+                "planned"
+                  ? "Utility planning records with geographic and timeline analysis."
+                  : "Query-derived mapped power infrastructure with geographic proximity analysis."}
+
+              </span>
+
+            </div>
+
+
+            <div className="dataset-toggle">
+
+              <button
+                type="button"
+                className={
+                  mapDataset ===
+                  "planned"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setMapDataset(
+                    "planned"
+                  )
+                }
+              >
+                Planned Projects
+
+                <small>
+                  Planning dataset
+                </small>
+
+              </button>
+
+
+              <button
+                type="button"
+                className={
+                  mapDataset ===
+                  "infrastructure"
+                    ? "active"
+                    : ""
+                }
+                onClick={() =>
+                  setMapDataset(
+                    "infrastructure"
+                  )
+                }
+              >
+                Infrastructure
+
+                <small>
+                  Query dataset
+                </small>
+
+              </button>
+
+            </div>
+
+          </section>
+
+
+          {/* EMERGENCY */}
 
           {emergencyEvent.active && (
 
             <section className="dashboard-emergency-banner">
-
 
               <div className="dashboard-emergency-left">
 
                 <span className="dashboard-emergency-icon">
                   ⚠
                 </span>
-
 
                 <div>
 
@@ -756,7 +1008,9 @@ export default function App() {
                   </strong>
 
                   <span>
-                    {emergencyEvent.label}
+                    {
+                      emergencyEvent.label
+                    }
                   </span>
 
                 </div>
@@ -764,41 +1018,12 @@ export default function App() {
               </div>
 
 
-              <div className="dashboard-emergency-impact">
-
-                <span>
-
-                  <strong>
-                    {
-                      affectedProjects.length
-                    }
-                  </strong>
-
-                  affected projects
-
-                </span>
-
-
-                <span>
-
-                  <strong>
-                    {
-                      affectedOpportunities.length
-                    }
-                  </strong>
-
-                  affected opportunity
-
-                </span>
-
-              </div>
-
-
               <button
                 type="button"
-
                 onClick={() =>
-                  setEmergencyOpen(true)
+                  setEmergencyOpen(
+                    true
+                  )
                 }
               >
                 View Event
@@ -809,230 +1034,270 @@ export default function App() {
           )}
 
 
-          {/* =================================================
-              DASHBOARD
-          ================================================== */}
+          {/* ===============================================
+              PLANNED PROJECT MAP
+          ================================================ */}
 
-          <section className="dashboard">
+          {mapDataset ===
+            "planned" && (
+
+            <section className="dashboard">
+
+              <div className="map-panel">
+
+                <div className="map-toolbar">
+
+                  <div>
+
+                    <p className="toolbar-title">
+                      Planned project layers
+                    </p>
+
+                    <p className="toolbar-subtitle">
+                      Toggle projects and
+                      detected overlaps.
+                    </p>
+
+                  </div>
 
 
-            {/* =============================================
-                MAP PANEL
-            ============================================== */}
+                  <div className="layer-buttons">
 
-            <div className="map-panel">
+                    <LayerButton
+                      active={
+                        layers.georgia
+                      }
+                      onClick={() =>
+                        toggleLayer(
+                          "georgia"
+                        )
+                      }
+                      label="Georgia Power"
+                      dotClass="ga-dot"
+                    />
+
+                    <LayerButton
+                      active={
+                        layers.dominion
+                      }
+                      onClick={() =>
+                        toggleLayer(
+                          "dominion"
+                        )
+                      }
+                      label="Dominion"
+                      dotClass="sc-dot"
+                    />
+
+                    <LayerButton
+                      active={
+                        layers.overlaps
+                      }
+                      onClick={() =>
+                        toggleLayer(
+                          "overlaps"
+                        )
+                      }
+                      label="Opportunities"
+                      dotClass="overlap-dot"
+                    />
+
+                  </div>
+
+                </div>
 
 
-              {/* MAP TOOLBAR */}
+                <div className="map-wrap">
 
-              <div className="map-toolbar">
-
-                <div>
-
-                  <p className="toolbar-title">
-                    Map layers
-                  </p>
-
-                  <p className="toolbar-subtitle">
-
-                    Toggle planned projects
-                    and detected overlaps.
-
-                  </p>
+                  <GridMap
+                    data={
+                      data
+                    }
+                    layers={
+                      layers
+                    }
+                    selectedOverlap={
+                      selectedOverlap
+                    }
+                    selectedOpportunity={
+                      selectedOpportunity
+                    }
+                    onSelectOverlap={
+                      setSelectedOverlap
+                    }
+                    emergencyEvent={
+                      emergencyEvent
+                    }
+                    affectedProjects={
+                      affectedProjects
+                    }
+                  />
 
                 </div>
 
 
-                <div className="layer-buttons">
+                <div className="map-legend">
 
-
-                  <LayerButton
-
-                    active={
-                      layers.georgia
-                    }
-
-                    onClick={() =>
-                      toggleLayer(
-                        "georgia"
-                      )
-                    }
-
-                    label=
-                      "Georgia Power"
-
-                    dotClass=
-                      "ga-dot"
-
-                  />
-
-
-                  <LayerButton
-
-                    active={
-                      layers.dominion
-                    }
-
-                    onClick={() =>
-                      toggleLayer(
-                        "dominion"
-                      )
-                    }
-
-                    label=
-                      "Dominion"
-
-                    dotClass=
-                      "sc-dot"
-
-                  />
-
-
-                  <LayerButton
-
-                    active={
-                      layers.overlaps
-                    }
-
-                    onClick={() =>
-                      toggleLayer(
-                        "overlaps"
-                      )
-                    }
-
-                    label=
-                      "Opportunities"
-
-                    dotClass=
-                      "overlap-dot"
-
-                  />
-
-                </div>
-
-              </div>
-
-
-              {/* =========================================
-                  MAP
-              ========================================== */}
-
-              <div className="map-wrap">
-
-                <GridMap
-
-                  data={
-                    data
-                  }
-
-                  layers={
-                    layers
-                  }
-
-                  selectedOverlap={
-                    selectedOverlap
-                  }
-
-                  selectedOpportunity={
-                    selectedOpportunity
-                  }
-
-                  onSelectOverlap={
-                    setSelectedOverlap
-                  }
-
-                  emergencyEvent={
-                    emergencyEvent
-                  }
-
-                  affectedProjects={
-                    affectedProjects
-                  }
-
-                />
-
-              </div>
-
-
-              {/* =========================================
-                  LEGEND
-              ========================================== */}
-
-              <div className="map-legend">
-
-                <span>
-
-                  <i className="legend-dot ga-dot" />
-
-                  Georgia Power
-
-                </span>
-
-
-                <span>
-
-                  <i className="legend-dot sc-dot" />
-
-                  Dominion Energy SC
-
-                </span>
-
-
-                <span>
-
-                  <i className="legend-line" />
-
-                  Within 25 miles
-
-                </span>
-
-
-                {emergencyEvent.active && (
-
-                  <span className="emergency-legend">
-
-                    <i className="emergency-legend-dot" />
-
-                    Urgent / affected
-
+                  <span>
+                    <i className="legend-dot ga-dot" />
+                    Georgia Power
                   </span>
 
-                )}
+                  <span>
+                    <i className="legend-dot sc-dot" />
+                    Dominion Energy SC
+                  </span>
+
+                  <span>
+                    <i className="legend-line" />
+                    Within 25 miles
+                  </span>
+
+                </div>
 
               </div>
 
-            </div>
+
+              <OpportunityList
+                overlaps={
+                  data.overlaps
+                }
+                selected={
+                  selectedOverlap
+                }
+                setSelected={
+                  setSelectedOverlap
+                }
+                emergencyEvent={
+                  emergencyEvent
+                }
+                affectedOpportunities={
+                  affectedOpportunities
+                }
+              />
+
+            </section>
+
+          )}
 
 
-            {/* =============================================
-                OPPORTUNITY LIST
-            ============================================== */}
+          {/* ===============================================
+              INFRASTRUCTURE MAP
+          ================================================ */}
 
-            <OpportunityList
+          {mapDataset ===
+            "infrastructure" && (
 
-              overlaps={
-                data.overlaps
-              }
+            <section className="dashboard">
 
-              selected={
-                selectedOverlap
-              }
+              <div className="map-panel">
 
-              setSelected={
-                setSelectedOverlap
-              }
+                <div className="map-toolbar">
 
-              emergencyEvent={
-                emergencyEvent
-              }
+                  <div>
 
-              affectedOpportunities={
-                affectedOpportunities
-              }
+                    <p className="toolbar-title">
+                      Infrastructure layers
+                    </p>
 
-            />
+                    <p className="toolbar-subtitle">
+                      Query-derived utility
+                      infrastructure and
+                      cross-utility proximity.
+                    </p>
 
-          </section>
+                  </div>
+
+
+                  <div className="infrastructure-source-badge">
+                    QUERY DATA
+                  </div>
+
+                </div>
+
+
+                <div className="map-wrap">
+
+                  {infrastructureLoading ? (
+
+                    <div className="infrastructure-map-state">
+                      Loading infrastructure...
+                    </div>
+
+                  ) : infrastructureError ? (
+
+                    <div className="infrastructure-map-state error">
+                      {
+                        infrastructureError
+                      }
+                    </div>
+
+                  ) : (
+
+                    <InfrastructureMap
+                      georgiaFeatures={
+                        infrastructureData
+                          ?.georgia ??
+                        []
+                      }
+                      dominionFeatures={
+                        infrastructureData
+                          ?.dominion ??
+                        []
+                      }
+                      opportunities={
+                        infrastructureOpportunities
+                      }
+                      selectedOpportunity={
+                        selectedInfrastructureOpportunity
+                      }
+                      onSelectOpportunity={
+                        setSelectedInfrastructureOpportunity
+                      }
+                    />
+
+                  )}
+
+                </div>
+
+
+                <div className="map-legend">
+
+                  <span>
+                    <i className="legend-dot ga-dot" />
+                    Georgia Power infrastructure
+                  </span>
+
+                  <span>
+                    <i className="legend-dot sc-dot" />
+                    Dominion Energy SC infrastructure
+                  </span>
+
+                  <span>
+                    <i className="legend-line" />
+                    Cross-utility proximity
+                  </span>
+
+                </div>
+
+              </div>
+
+
+              <InfrastructureOpportunityList
+                opportunities={
+                  infrastructureOpportunities
+                }
+                selected={
+                  selectedInfrastructureOpportunity
+                }
+                setSelected={
+                  setSelectedInfrastructureOpportunity
+                }
+              />
+
+            </section>
+
+          )}
 
         </>
 
@@ -1043,18 +1308,22 @@ export default function App() {
           ANALYSIS PAGE
       ====================================================== */}
 
-      {page === "analysis" && (
+      {page ===
+        "analysis" && (
 
         <AnalysisPage
-
           data={
             data
           }
-
           onViewOpportunity={
             openOpportunityOnMap
           }
-
+          emergencyEvent={
+            emergencyEvent
+          }
+          affectedOpportunities={
+            affectedOpportunities
+          }
         />
 
       )}
@@ -1065,42 +1334,37 @@ export default function App() {
       ====================================================== */}
 
       <EmergencyDrawer
-
         event={
           emergencyOpen
             ? emergencyEvent
             : {
                 ...emergencyEvent,
-
                 active: false,
               }
         }
-
         affectedProjects={
           affectedProjects
         }
-
         affectedOpportunities={
           affectedOpportunities
         }
-
         resources={
           responseResources
         }
-
         onClose={() =>
-          setEmergencyOpen(false)
+          setEmergencyOpen(
+            false
+          )
         }
-
         onViewMap={
           openEmergencyOnMap
         }
-
       />
 
     </main>
 
   );
+
 }
 
 
@@ -1128,6 +1392,7 @@ function Stat({
     </div>
 
   );
+
 }
 
 
@@ -1146,7 +1411,6 @@ function LayerButton({
 
     <button
       type="button"
-
       className={
         `layer-button ${
           active
@@ -1154,11 +1418,9 @@ function LayerButton({
             : ""
         }`
       }
-
       onClick={
         onClick
       }
-
       aria-pressed={
         active
       }
@@ -1175,4 +1437,5 @@ function LayerButton({
     </button>
 
   );
+
 }
