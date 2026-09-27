@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import OpportunityDrawer from "./OpportunityDrawer";
 
 
 export default function AnalysisPage({
@@ -6,13 +7,16 @@ export default function AnalysisPage({
   onViewOpportunity,
 }) {
 
-  const [sortBy, setSortBy] =
-    useState("distance");
+  const [sortBy, setSortBy] = useState("distance");
+
+  // Opportunity currently open in the drawer
+  const [selectedOpportunity, setSelectedOpportunity] =
+    useState(null);
 
 
   /*
-   * Keep the original index because that index
-   * identifies the same opportunity on the map.
+   * Keep the original array index so we can still
+   * open this exact opportunity on the dashboard map.
    */
   const opportunities = useMemo(() => {
 
@@ -49,13 +53,12 @@ export default function AnalysisPage({
 
 
   /*
-   * Simple descriptive metrics derived directly
-   * from the overlap data.
+   * Summary statistics
    */
 
   const closest =
-    opportunities.length > 0
-      ? [...opportunities].sort(
+    data.overlaps.length > 0
+      ? [...data.overlaps].sort(
           (a, b) =>
             a.distance - b.distance
         )[0]
@@ -95,9 +98,9 @@ export default function AnalysisPage({
 
     <div className="analysis-page">
 
-      {/* ==========================================
-          PAGE HEADER
-      =========================================== */}
+      {/* =====================================================
+          HERO
+      ====================================================== */}
 
       <section className="analysis-hero">
 
@@ -123,9 +126,9 @@ export default function AnalysisPage({
       </section>
 
 
-      {/* ==========================================
+      {/* =====================================================
           SUMMARY CARDS
-      =========================================== */}
+      ====================================================== */}
 
       <section className="analysis-summary">
 
@@ -177,11 +180,11 @@ export default function AnalysisPage({
       </section>
 
 
-      {/* ==========================================
-          MAIN ANALYSIS
-      =========================================== */}
+      {/* =====================================================
+          OPPORTUNITY TABLE
+      ====================================================== */}
 
-      <section className="analysis-content">
+      <section className="analysis-content analysis-content-full">
 
         <div className="analysis-table-card">
 
@@ -237,10 +240,6 @@ export default function AnalysisPage({
           </div>
 
 
-          {/* ======================================
-              TABLE
-          ======================================= */}
-
           <div className="analysis-table-wrapper">
 
             <table className="analysis-table">
@@ -270,7 +269,7 @@ export default function AnalysisPage({
                   </th>
 
                   <th>
-                    Map
+                    Details
                   </th>
 
                 </tr>
@@ -298,6 +297,8 @@ export default function AnalysisPage({
                       </td>
 
 
+                      {/* GEORGIA */}
+
                       <td>
 
                         <div className="table-project">
@@ -320,6 +321,8 @@ export default function AnalysisPage({
 
                       </td>
 
+
+                      {/* DOMINION */}
 
                       <td>
 
@@ -344,16 +347,18 @@ export default function AnalysisPage({
                       </td>
 
 
+                      {/* DISTANCE */}
+
                       <td>
 
                         <span className="distance-pill">
-
                           {item.distance} mi
-
                         </span>
 
                       </td>
 
+
+                      {/* TIMELINE */}
 
                       <td>
 
@@ -366,17 +371,19 @@ export default function AnalysisPage({
                       </td>
 
 
+                      {/* INSPECT */}
+
                       <td>
 
                         <button
                           className="view-map-button"
                           onClick={() =>
-                            onViewOpportunity(
-                              item.originalIndex
+                            setSelectedOpportunity(
+                              item
                             )
                           }
                         >
-                          View Map
+                          View Details
                         </button>
 
                       </td>
@@ -394,108 +401,30 @@ export default function AnalysisPage({
 
         </div>
 
-
-        {/* ==========================================
-            EXPLANATION
-        =========================================== */}
-
-        <div className="method-card">
-
-          <p className="eyebrow">
-            HOW GRIDLOCK WORKS
-          </p>
-
-          <h2>
-            Detection Method
-          </h2>
-
-
-          <div className="method-step">
-
-            <span>01</span>
-
-            <div>
-
-              <strong>
-                Locate planned projects
-              </strong>
-
-              <p>
-                Public utility project locations
-                are converted into geographic
-                coordinates.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div className="method-step">
-
-            <span>02</span>
-
-            <div>
-
-              <strong>
-                Compare utilities
-              </strong>
-
-              <p>
-                Georgia Power projects are compared
-                against Dominion Energy South
-                Carolina projects.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div className="method-step">
-
-            <span>03</span>
-
-            <div>
-
-              <strong>
-                Detect geographic overlap
-              </strong>
-
-              <p>
-                Project pairs whose calculated
-                center-to-center distance is under
-                25 miles are flagged.
-              </p>
-
-            </div>
-
-          </div>
-
-
-          <div className="method-step">
-
-            <span>04</span>
-
-            <div>
-
-              <strong>
-                Compare timelines
-              </strong>
-
-              <p>
-                Planned in-service dates are
-                compared to provide additional
-                coordination context.
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
       </section>
+
+
+      {/* =====================================================
+          DRAWER
+      ====================================================== */}
+
+      <OpportunityDrawer
+        opportunity={selectedOpportunity}
+        onClose={() =>
+          setSelectedOpportunity(null)
+        }
+        onOpenDashboard={() => {
+
+          if (!selectedOpportunity) {
+            return;
+          }
+
+          onViewOpportunity(
+            selectedOpportunity.originalIndex
+          );
+
+        }}
+      />
 
     </div>
   );
@@ -540,27 +469,36 @@ function SummaryCard({
 
 function formatDays(days) {
 
-  if (days === null || days === undefined) {
+  if (
+    days === null ||
+    days === undefined
+  ) {
     return "Unknown";
   }
+
 
   if (days === 0) {
     return "Same date";
   }
 
+
   if (days < 60) {
     return `${days} days`;
   }
 
+
   const months =
     Math.round(days / 30.44);
+
 
   if (months < 24) {
     return `${months} months`;
   }
 
+
   const years =
     (days / 365.25).toFixed(1);
+
 
   return `${years} years`;
 }
